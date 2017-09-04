@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>JWT 실습</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="wrap">
+    <h1>
+      JWT 실습
+    </h1>
+    <h2>
+      Postman 이용
+    </h2>
+    <p>
+      <code>/auth</code> 경로에 username, password를 포함시킨 POST 요청을 보내면 토큰이 반환됩니다. 반환된 토큰을 이용해 <code>/auth</code> 경로에 GET 요청을 보내보세요. 토큰은 Authorization 헤더에 "Bearer [토큰]" 형식으로 포함시키면 됩니다.
+    </p>
+    
+    <h2>
+      Axios 이용
+    </h2>
+    <p>
+      개발자 도구의 콘솔을 여시고, Axios를 이용해 Postman으로 했던 작업을 그대로 다시 해 보세요. 현재 페이지에는 <code>axios</code>라는 이름으로 로딩되어 있습니다.
+    </p>
+    <pre><code class="javascript">// 토큰 받아오기
+let token;
+axios.post('/auth', {
+  username: 'fast',
+  password: 'campus'
+}).then(res =&gt; {
+  token = res.data.token
+  console.log(`token: ${token}`)
+})</code></pre>
+    
+    <pre><code class="javascript">// 토큰으로 요청하기 1
+axios.get('/auth', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+}).then(res =&gt; {
+  prettyPrint(res.data)
+})</code></pre>
+    
+    <pre><code class="javascript">// 토큰으로 요청하기 2
+axios.get('/some-api', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+}).then(res =&gt; {
+  prettyPrint(res.data)
+})</code></pre>
+    
+    <pre><code class="javascript">// 토큰으로 요청하기 3
+axios.post('/count', null, {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+}).then(res =&gt; {
+  prettyPrint(res.data)
+})</code></pre>
+    
+    <hr>
+    
+    <h2>
+      Axios Instance
+    </h2>
+    
+    <p>
+      위의 예제에서는 토큰이 포함된 요청을 보낼 때마다 매번 config 객체(axios.get의 두 번째 인자, axios.post의 세 번째 인자)를 통해 헤더를 설정해주고 있습니다.
+      모든 요청에 똑같은 식으로 헤더를 넣어주는 일은 번거롭고, 또 에러를 일으키기 쉽겠죠? (Don't Repeat Yourself!)
+    </p>
+    <p>
+      Axios는 이렇게 중복된 설정을 하지 않도록 해주는 편의도구를 제공하고 있습니다. 그것을 Axios instance라고 부르는데, 한 번 config 객체를 넘겨서 Axios instance를 생성하면
+      해당 instance를 통해 보내는 요청에는 config 객체가 자동으로 설정됩니다.
+    </p>
+    
+    <pre><code class="javascript">// Axios.create
+const authedAxios = axios.create({
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+})
+authedAxios.get('/auth').then(res =&gt; {
+  prettyPrint(res.data)
+})
+authedAxios.get('/some-api').then(res =&gt; {
+  prettyPrint(res.data)
+})
+authedAxios.post('/count').then(res =&gt; {
+  prettyPrint(res.data)
+})</code></pre>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <script>function prettyPrint(json) {
+    console.log(JSON.stringify(json, null, '  '))  
+    }</script>
+</body>
+</html>
